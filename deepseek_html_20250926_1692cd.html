@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tool Test PCCC - Fixed CORS</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        .container { background: #f5f5f5; padding: 20px; border-radius: 10px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input, textarea, button { width: 100%; padding: 8px; margin: 5px 0; }
+        button { background: #007cba; color: white; border: none; cursor: pointer; }
+        .result { background: #e9ecef; padding: 15px; border-radius: 5px; margin-top: 15px; }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Tool Test PCCC - Fixed CORS</h1>
+        
+        <div class="form-group">
+            <label for="cookieInput">Cookie đăng nhập:</label>
+            <textarea id="cookieInput" rows="3" placeholder="Dán cookie từ trình duyệt"></textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="scoreInput">Điểm số (0-10):</label>
+            <input type="number" id="scoreInput" value="8" min="0" max="10">
+        </div>
+
+        <button onclick="submitWithProxy()">🚀 Gửi qua Proxy</button>
+        <button onclick="submitWithForm()">📨 Gửi qua Form</button>
+
+        <div id="result" class="result hidden">
+            <h3>Kết quả:</h3>
+            <div id="statusMessage"></div>
+        </div>
+    </div>
+
+    <script>
+        // Proxy servers để bypass CORS
+        const proxies = [
+            'https://cors-anywhere.herokuapp.com/',
+            'https://api.codetabs.com/v1/proxy?quest=',
+            'https://corsproxy.io/?'
+        ];
+
+        async function submitWithProxy() {
+            const statusDiv = document.getElementById('statusMessage');
+            const resultDiv = document.getElementById('result');
+            
+            resultDiv.classList.remove('hidden');
+            statusDiv.innerHTML = '🔄 Đang thử qua proxy...';
+
+            for (const proxy of proxies) {
+                try {
+                    const response = await testProxy(proxy);
+                    if (response.ok) {
+                        statusDiv.innerHTML = '✅ Gửi thành công qua proxy!';
+                        return;
+                    }
+                } catch (error) {
+                    console.log(`Proxy ${proxy} failed:`, error);
+                }
+            }
+            
+            statusDiv.innerHTML = '❌ Tất cả proxy đều thất bại. Thử phương pháp Form.';
+        }
+
+        async function testProxy(proxy) {
+            const formData = new FormData();
+            // Thêm dữ liệu vào formData...
+            
+            return await fetch(proxy + 'https://cuocthitracnghiem.hssvhue.com/tim-hieu-phap-luat-ve-phong-chay-chua-chay-va-cuu-nan-cuu-ho/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                    'Cookie': document.getElementById('cookieInput').value
+                },
+                body: formData
+            });
+        }
+
+        function submitWithForm() {
+            // Tạo form ẩn và submit theo cách truyền thống
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = 'https://cuocthitracnghiem.hssvhue.com/tim-hieu-phap-luat-ve-phong-chay-chua-chay-va-cuu-nan-cuu-ho/';
+            form.target = '_blank';
+            form.style.display = 'none';
+
+            // Thêm các input ẩn với dữ liệu
+            const fields = {
+                'input_35.0': '195263|195281|195234|195266|195246|195194|195261|195289|195205|195294',
+                'input_27': document.getElementById('scoreInput').value,
+                // ... thêm các field khác
+            };
+
+            for (const [name, value] of Object.entries(fields)) {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = name;
+                input.value = value;
+                form.appendChild(input);
+            }
+
+            document.body.appendChild(form);
+            form.submit();
+            document.body.removeChild(form);
+
+            document.getElementById('statusMessage').innerHTML = '📨 Đã gửi qua Form. Kiểm tra tab mới.';
+            document.getElementById('result').classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>
